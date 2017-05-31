@@ -1,0 +1,109 @@
+Option "ribparse" "string varsubst" ["$"]
+IfBegin "!defined(RMSTREE)"
+    Option "user" "string RMSTREE" ["/opt/pixar/RenderManForMaya-21.2-maya2017"]
+IfEnd
+Option "searchpath" "shader"    ["../../maya/projects/RfM_osl:@"]
+Option "searchpath" "rixplugin" ["${RMSTREE}/lib/shaders:../../maya/projects/RfM_ris:@"]
+Option "searchpath" "texture"   ["../textures:@"]
+Option "searchpath" "archive"   ["../archives:Cutter_Help/templates/Rib:custom_templates/Rib"]
+#Option "statistics" "endofframe" [1]
+ 
+Hider "raytrace" "int incremental" [1] "int minsamples" [0] "int maxsamples" [128] "float darkfalloff" [0.025]
+Integrator "PxrPathTracer" "PxrPathTracer" "int maxPathLength" [10] "int allowCaustics" [0]
+PixelVariance 0.05
+ 
+Format 1080 720 1
+Display "Teapot_Baer" "it" "rgba"
+Projection "perspective" "fov" [20]
+ 
+Translate  -5 0 55
+Rotate -35 0 1 0
+Rotate -25 1 0 0
+Rotate 20 0 0 1
+Scale 1 1 -1
+DisplayFilter "PxrBackgroundDisplayFilter" "background" "color backgroundColor" [1 1 1]
+ 
+WorldBegin
+    Bxdf "PxrSurface" "default"
+            "color diffuseColor" [0.1 0.1 0.1]
+            "float diffuseGain" [1.0]
+            "float presence" [1.0]
+    TransformBegin
+        Scale 4 4 4
+        ReadArchive "cutrAxes.rib"
+    TransformEnd
+ 
+ 
+    TransformBegin
+        Rotate 25 30  0 1
+        ReadArchive "lights/3PLightStage.rib"
+    TransformEnd
+ 
+    # TEAPOT #
+    # HANDLE #
+    TransformBegin
+        ReadArchive "Handle.rib"
+    TransformEnd
+ 
+    # BODY #
+    TransformBegin
+        ReadArchive "Body.rib"
+    TransformEnd
+ 
+    # TOP #
+    TransformBegin
+        ReadArchive "Top.rib"
+    TransformEnd
+ 
+    # TOP HANDLE #
+    AttributeBegin
+        Scale 1 1 1
+        TransformBegin
+            Translate -1.5 5 0
+            Scale 0.8 0.8 0.8
+            Rotate 90 0 1 0
+            Rotate -50 1 0 0
+            ReadArchive "materials/Mat_Copper.rib"
+            Torus 5 .25 0 360 360
+        TransformEnd
+    AttributeEnd
+ 
+    # SPOUT #
+    AttributeBegin
+        Sides 2
+        Translate 3 1.75 0
+        Scale 1 0.75 1
+        Rotate 30 0 0 1
+        Rotate 90 0 1 0
+        ReadArchive "materials/Mat_Copper.rib"
+        Hyperboloid 1.5 0 0 0.4 0 6 360
+    AttributeEnd
+ 
+    # TEACUP 1 #
+    AttributeBegin
+        TransformBegin
+            Translate 0 0 3
+            Rotate 10 0 1 0
+            Sides 2
+            ReadArchive "TeaCup.rib"
+        TransformEnd
+    AttributeEnd
+ 
+    # TEACUP 2 #
+    TransformBegin
+        Translate 3 0 5
+        Rotate 10 0 1 0
+        Sides 2
+        ReadArchive "TeaCup.rib"
+    TransformEnd
+ 
+ 
+    # Plane #
+    AttributeBegin
+        Scale 70 1 70
+        ReadArchive "materials/prSurface_Plane.rib"
+        Polygon "P" [-0.5 0 -0.5  -0.5 0 0.5  0.5 0 0.5  0.5 0 -0.5]
+                "st" [0 0  0 1  1 1  1 0]
+    AttributeEnd
+ 
+WorldEnd
